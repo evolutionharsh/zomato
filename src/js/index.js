@@ -1,7 +1,9 @@
 // Global app controller
 import Search from './models/Search';
+import Recipe from './models/Recipe';
 import * as searchView from './views/SearchView';
 import {elements, renderLoader, clearLoader} from './views/base';
+//import { stat } from 'fs';
 /** Global state of the app
  * - Search object
  * - Current recipe object
@@ -10,6 +12,10 @@ import {elements, renderLoader, clearLoader} from './views/base';
  */
 const state ={};
 
+/** 
+ * Search Controller
+ * 
+ */
 const controlSearch = async () => {
   // 1. Get query from view
   const query = searchView.getInput();//TODO
@@ -23,11 +29,16 @@ const controlSearch = async () => {
       searchView.clearResults();
       renderLoader(elements.searchRes);
       //4. Search for the recipes
+      try {
       await state.search.getResults();
 
       //5. Render results on UI
       clearLoader();
       searchView.renderResults(state.search.result);
+      }catch(err) {
+        alert('Something went wrong with search');
+        clearLoader();
+      }
     }
 }
 elements.searchForm.addEventListener('submit', e => {
@@ -45,4 +56,41 @@ elements.searchResPages.addEventListener('click', e => {
   }
 });
 
+/** 
+ * Recipe Controller
+ * 
+ */
+const controlRecipe = async () => {
+   // Get ID from Url
+   const id = window.location.hash.replace('#','');
+   console.log(id);
+   if(id) {
+     //Prepare UI for changes
+
+     //Create new recipe object
+     state.recipe =  new Recipe(id);
+     //Get recipe data
+     try {
+      await state.recipe.getRecipe();
+
+      //Calculate servings & time
+      state.recipe.calcTime();
+      state.recipe.calcServings();
+ 
+      //Render recipe
+      console.log(state.recipe);
+     }
+     catch (err) {
+       alert('Error processing recipe!!');
+     }
+     
+   }
+};
 //search.getResults();
+/* const r = new Recipe(46956);
+r.getRecipe();
+console.log(r); */
+
+/* window.addEventListener('hashchange', controlRecipe);
+window.addEventListener('load',controlRecipe); */
+['hashchange','load'].forEach(event => window.addEventListener(event,controlRecipe));
