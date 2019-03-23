@@ -20,5 +20,5 @@ elements.shopping.insertAdjacentHTML('beforend',markup);
 
 export const deleteItem = id => {
   const item= document.querySelector(`[date-itemid="${id}"]`);
-  item.parentElement.removeChild(item);
+  if (item) item.parentElement.removeChild(item);
 };
